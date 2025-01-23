@@ -380,9 +380,9 @@ class TabR(nn.Module):
                     # build a flat (CPU) index
                     index_flat = faiss.IndexFlatL2(d_main)
                     # # make it into a gpu index
-                    # self.search_index = faiss.index_cpu_to_gpu(
-                    #     faiss.StandardGpuResources(), 0, index_flat
-                    # )
+                    self.search_index = faiss.index_cpu_to_gpu(
+                        faiss.StandardGpuResources(), 0, index_flat
+                    )
                 else:
                     self.search_index = faiss.IndexFlatL2(d_main)
                 # self.search_index = (

@@ -1,1 +1,8 @@
 pytorch-tabr
+*/__pycache__
+__pycache__
+.vscode/
+.venv
+bin/
+tabular-dl-tabr
+.idea
