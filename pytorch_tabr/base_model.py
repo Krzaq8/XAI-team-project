@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import copy
-import faiss.contrib.torch_utils  # noqa  << this line makes faiss work with PyTorch
+# import faiss.contrib.torch_utils  # noqa  << this line makes faiss work with PyTorch
 import torch
 import warnings
 import numpy as np
