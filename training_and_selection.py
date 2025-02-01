@@ -1,5 +1,3 @@
-# imports
-import pickle
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -11,18 +9,18 @@ from contextlib import contextmanager
 import threading
 import _thread
 
-
-SEED = 42
-NUM_SPLITS = 5
-MODEL_ACCURACIES_PATH = 'model_accuracies.csv'
-FILTERED_MODEL_ACCURACIES_PATH = 'filtered_model_accuracies.csv'
-TIME_LIMIT = 20
-TIME_LIMIT_CROSS_VALIDATION = 25
-
+from constants import (
+    FILTERED_MODEL_ACCURACIES_PATH,
+    MODEL_ACCURACIES_PATH,
+    NUM_SPLITS,
+    SEED,
+    TIME_LIMIT,
+    TIME_LIMIT_CROSS_VALIDATION
+)
 
 
 class TimeoutException(Exception):
-    def __init__(self, msg=''):
+    def __init__(self, msg=""):
         self.msg = msg
 
 
@@ -43,8 +41,8 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
     accuracies = {}
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=SEED)
     if not Path(path).is_file():
-        with open(path, 'w', newline='') as csvfile:
-            fieldnames = ['model_class', 'acc', 'kwargs']
+        with open(path, "w", newline="") as csvfile:
+            fieldnames = ["model_class", "acc", "kwargs"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
     for model_class in models:
@@ -53,8 +51,8 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
         accuracies[model_class.__name__] = []
         for hyperparams in tqdm(product(*model_hyperparameters.values())):
             kwargs = dict(zip(model_hyperparameters.keys(), hyperparams))
-            if model_class.__name__ == 'SVMClassifier':
-                if kwargs['kernel'] != 'poly' and kwargs['degree'] != 3:
+            if model_class.__name__ == "SVMClassifier":
+                if kwargs["kernel"] != "poly" and kwargs["degree"] != 3:
                     continue
             model = model_class(**kwargs)
             try:
@@ -66,7 +64,7 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
             except TimeoutException as e:
                 acc = np.NaN
                 
-            with open(path, 'a', newline='') as csvfile:
+            with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
                 
@@ -77,8 +75,8 @@ def cross_validate_models(models, kwargs_lists, X, y, path, limit):
     accuracies = {}
     kf = StratifiedKFold(n_splits=NUM_SPLITS, shuffle=True, random_state=SEED)
     if not Path(path).is_file():
-        with open(path, 'w', newline='') as csvfile:
-            fieldnames = ['model_class', 'acc', 'kwargs']
+        with open(path, "w", newline="") as csvfile:
+            fieldnames = ["model_class", "acc", "kwargs"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
     for model_class in models:
@@ -98,7 +96,7 @@ def cross_validate_models(models, kwargs_lists, X, y, path, limit):
             except TimeoutException as e:
                 acc = np.NaN
                 
-            with open(path, 'a', newline='') as csvfile:
+            with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
                 

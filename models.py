@@ -1,14 +1,12 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import pandas as pd
-import torch
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler # To preprocess data for SVM - greatly improves performance
 from sklearn.svm import SVC
+from xgboost import XGBClassifier
 from pytorch_tabr import TabRClassifier as TabRClassifier_
+from constants import DEVICE, SVMCLASSIFIER_HYPERPARAMETERS, TABRCLASSIFIER_HYPERPARAMETERS, XGBCLASSIFIER_HYPERPARAMETERS
 
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 def SVMClassifier(**hyperparams):
     return make_pipeline(StandardScaler(), SVC(**hyperparams))
@@ -45,3 +43,11 @@ class TabRClassifier(TabRClassifier_):
             return super().predict_proba(X=X.values)
         else:
             return super().predict_proba(X=X)
+        
+
+MODELS = [SVMClassifier, TabRClassifier, XGBClassifier]
+HYPERPARAMETERS = {
+    XGBClassifier.__name__ : XGBCLASSIFIER_HYPERPARAMETERS,
+    SVMClassifier.__name__ : SVMCLASSIFIER_HYPERPARAMETERS,
+    TabRClassifier.__name__ : TABRCLASSIFIER_HYPERPARAMETERS
+}

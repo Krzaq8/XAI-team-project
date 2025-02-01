@@ -1,3 +1,0 @@
-model_class,acc,kwargs
-SVMClassifier,0.766109785202864,"{'kernel': 'poly', 'degree': 1}"
-SVMClassifier,0.6992840095465394,"{'kernel': 'poly', 'degree': 2}"
