@@ -6,6 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="7ddf7a98-ccdf-4cda-9535-d0ba7a1e2e13" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/pytorch-tabr/SpeedDating.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exploration.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/exploration.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch-tabr" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch-tabr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch-tabr/classification.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch-tabr/classification.ipynb" afterDir="false" />
     </list>
@@ -36,7 +39,7 @@
   &quot;keyToString&quot;: {
     &quot;Python.tescik.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;tabr-faiss-cpu&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/mracz/Documents/ML/XAI-team-project&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -100,6 +103,9 @@
       <option name="presentableId" value="Default" />
       <updated>1737576031379</updated>
       <workItem from="1737576032649" duration="20994000" />
+      <workItem from="1738253713083" duration="68000" />
+      <workItem from="1738253798921" duration="661000" />
+      <workItem from="1738420365254" duration="1001000" />
     </task>
     <servers />
   </component>
