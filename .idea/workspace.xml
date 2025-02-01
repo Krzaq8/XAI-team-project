@@ -8,6 +8,7 @@
       <change afterPath="$PROJECT_DIR$/pytorch-tabr/SpeedDating.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exploration.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/exploration.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_accuracies.csv" beforeDir="false" afterPath="$PROJECT_DIR$/model_accuracies.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch-tabr" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch-tabr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pytorch-tabr/classification.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/pytorch-tabr/classification.ipynb" afterDir="false" />
     </list>
