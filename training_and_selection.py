@@ -1,13 +1,16 @@
+import gc
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from itertools import product
+import torch
 from tqdm import tqdm
 import csv
 from pathlib import Path
 from contextlib import contextmanager
 import threading
 import _thread
+import signal
 import pickle
 
 from constants import (
@@ -28,15 +31,24 @@ class TimeoutException(Exception):
 
 @contextmanager
 def time_limit(seconds):
-    timer = threading.Timer(seconds, lambda: _thread.interrupt_main())
-    timer.start()
+
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
     try:
         yield
-    except KeyboardInterrupt:
-        raise TimeoutException()
     finally:
-        # if the action ends in specified time, timer is canceled
-        timer.cancel()
+        signal.alarm(0)
+    # timer = threading.Timer(seconds, lambda: _thread.interrupt_main())
+    # timer.start()
+    # try:
+    #     yield
+    # except KeyboardInterrupt:
+    #     raise TimeoutException()
+    # finally:
+    #     # if the action ends in specified time, timer is canceled
+    #     timer.cancel()
 
 
 def train_test_models(models, hyperparameters, X, y, path, limit):
@@ -69,6 +81,10 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
             with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
+            if model_class.__name__ == 'TabRClassifier':
+                del model
+                gc.collect()
+                torch.cuda.empty_cache()
                 
     return accuracies
 

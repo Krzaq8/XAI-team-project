@@ -18,9 +18,9 @@ class TabRClassifier(TabRClassifier_):
         # context_dropout=0.5,
         # context_sample_size=2000,
         # num_embeddings={"type": "PLREmbeddings", "n_frequencies": 32, "frequency_scale": 32, "d_embedding": 32, "lite": False},
-        super().__init__(**kwargs)
+        self.max_epochs = kwargs.pop('max_epochs')
+        super().__init__(**kwargs, device_name=DEVICE, verbose=1)
         self.type_embeddings="one-hot"
-        self.device_name=DEVICE
         self.optimizer_params={"lr": 2e-4}
         
     def fit(
@@ -30,7 +30,7 @@ class TabRClassifier(TabRClassifier_):
         **kwargs
     ) -> None:
         super().fit(X_train=X_train.values, y_train=y_train.values,
-                    max_epochs=1, batch_size=25, **kwargs)
+                    max_epochs=self.max_epochs, batch_size=25, **kwargs)
         
     def predict(self, X: pd.DataFrame):
         if isinstance(X, pd.DataFrame):
