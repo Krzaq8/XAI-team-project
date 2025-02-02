@@ -27,6 +27,7 @@ def performance_metrics(model, X_test, y_test, plot=False):
         "Confusion Matrix": confusion_matrix(y_test, y_pred),
         "Demographic Parity": {},
         "Equal Opportunity": {},
+        "Predictive Positive Rate": {},
     }
 
     
@@ -45,8 +46,15 @@ def performance_metrics(model, X_test, y_test, plot=False):
             group: np.mean(y_pred[(feature_values == group) & (y_test == 1)])
             for group in groups
         }
+
+        predictive_positive_rate = {
+            group: np.sum(y_pred[feature_values == group]) / len(y_pred[feature_values == group])
+            for group in groups
+        }
+
         metrics["Demographic Parity"][feature_name] = demographic_parity
         metrics["Equal Opportunity"][feature_name] = equal_opportunity
+        metrics["Predictive Positive Rate"][feature_name] = predictive_positive_rate
 
     return metrics
 
