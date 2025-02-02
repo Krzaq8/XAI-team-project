@@ -1,3 +1,5 @@
+import gc
+import os
 import pickle
 from typing import Callable, Dict
 import warnings
@@ -15,6 +17,7 @@ import shap
 from tqdm import tqdm
 
 from constants import EXPLANATIONS_PATH, SEED, SENSITIVE_FEATURES
+from models import TabRClassifier
 from training_and_selection import get_model, release_model_vram
 
 
@@ -137,17 +140,32 @@ def run_all_explanations(
         explanation_funcs: Dict[str, Callable] = EXPLANATION_FUNCS,
         plot=False
     ):
-    explanations = {name: dict() for name in explanation_funcs.keys()}
 
+    all_explanations = []
     for model_class in models:
-        for kwargs in tqdm(rashomon_sets_params[model_class.__name__]):
+        results_path = f'{EXPLANATIONS_PATH}/{model_class.__name__}.pickle'
+        skip_iters = 0
+        if os.path.exists(results_path):
+            with open(results_path, 'rb') as file:
+                explanations = pickle.load(file)
+            skip_iters = len(explanations[next(iter(explanation_funcs.keys()))])
+            print(f'Skipping {skip_iters} iterations of {model_class.__name__}')
+        else:
+            explanations = {name: dict() for name in explanation_funcs.keys()}
+
+        for kwargs in tqdm(rashomon_sets_params[model_class.__name__][skip_iters:]):
             model = get_model(model_class, kwargs, X_train, y_train)
             model_idx = model_class.__name__, str(kwargs)
             for name, explain_func in explanation_funcs.items():
                 expl = explain_func(model, X_test, y_test, plot=plot)
                 explanations[name][model_idx] = expl
-            release_model_vram(model)
-            with open(EXPLANATIONS_PATH, 'wb') as file:
+                
+            if model_class.__name__ == 'TabRClassifier':
+                del model
+                gc.collect()
+                torch.cuda.empty_cache()
+            with open(f'{EXPLANATIONS_PATH}/{model_class.__name__}.pickle', 'wb') as file:
                 pickle.dump(explanations, file)
+        all_explanations.append(explanations)
 
-    return explanations
+    return all_explanations

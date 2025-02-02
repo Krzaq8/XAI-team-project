@@ -34,7 +34,7 @@ MODEL_ACCURACIES_PATH = "model_accuracies.csv"
 FILTERED_MODEL_ACCURACIES_PATH = "filtered_model_accuracies.csv"
 RASHOMON_SETS_PATH = "rashomon_sets_params.pickle"
 CHECKPOINT_PATH = 'checkpoints'
-EXPLANATIONS_PATH = 'results/explanations.pickle'
+EXPLANATIONS_PATH = 'results'
 
 XGBCLASSIFIER_HYPERPARAMETERS = {
     'n_estimators': [100, 200, 400, 600],
