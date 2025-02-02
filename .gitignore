@@ -10,3 +10,4 @@ tabular-dl-tabr
 *.pickle
 *.out
 *.err
+_test_file.py
