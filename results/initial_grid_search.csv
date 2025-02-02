@@ -900,3 +900,5 @@ TabRClassifier,nan,"{'activation': 'ReLU', 'd_main': 256, 'd_multiplier': 6, 'dr
 TabRClassifier,0.8186157517899761,"{'activation': 'ReLU', 'd_main': 256, 'd_multiplier': 6, 'dropout0': 0.25, 'dropout1': 'dropout0', 'context_size': 16, 'encoder_n_blocks': 2, 'predictor_n_blocks': 2, 'seed': 69, 'max_epochs': 2}"
 TabRClassifier,0.8198090692124105,"{'activation': 'ReLU', 'd_main': 256, 'd_multiplier': 6, 'dropout0': 0.25, 'dropout1': 'dropout0', 'context_size': 32, 'encoder_n_blocks': 2, 'predictor_n_blocks': 2, 'seed': 69, 'max_epochs': 2}"
 TabRClassifier,nan,"{'activation': 'ReLU', 'd_main': 256, 'd_multiplier': 6, 'dropout0': 0.25, 'dropout1': 'dropout0', 'context_size': 64, 'encoder_n_blocks': 2, 'predictor_n_blocks': 2, 'seed': 69, 'max_epochs': 2}"
+SVMClassifier,0.6372315035799523,"{'degree': 10, 'kernel': 'poly', 'C': 16, 'gamma': 4, 'max_iter': 30000}"
+XGBClassifier,0.8424821002386634,"{'n_estimators': 600, 'max_depth': 12, 'min_child_weight': 4, 'eta': 0.6, 'subsample': 1}"

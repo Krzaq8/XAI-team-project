@@ -32,16 +32,30 @@ FILTERED_MODEL_ACCURACIES_PATH = "filtered_model_accuracies.csv"
 RASHOMON_SETS_PATH = "rashomon_sets_params.pickle"
 
 XGBCLASSIFIER_HYPERPARAMETERS = {
-    "max_depth": [3, 6],
+    'n_estimators': [100, 200, 400, 600],
+    "max_depth": [6, 8, 10, 12],
     "min_child_weight": [1, 4],
-    "device": [DEVICE],
+    "eta": [0.1, 0.3, 0.6],
+    "subsample": [0.5, 0.8, 1],
+    # "lambda": [0, 0.2, 1, 5, 12, 25],
+    # "alpha": [0, 0.2, 1, 5, 12, 25],
 }
 SVMCLASSIFIER_HYPERPARAMETERS = {
-    "kernel": ["poly"],
-    "degree": [1, 2],
+    "degree": [2, 3, 4, 5, 8, 10],
+    "kernel": ['poly', 'rbf', 'sigmoid'],
+    'C': [0.1, 0.25, 0.5, 1, 2, 4, 8, 16],
+    'gamma': ['auto', 0.2, 0.5, 1, 4],
+    'max_iter': [30000],
 }
 TABRCLASSIFIER_HYPERPARAMETERS = {
-   "d_main": [12, 36],
-    "d_multiplier": [1.5, 2],
-    "seed": [SEED]
+    'activation': ['SiLU', 'GELU', 'Sigmoid', 'ReLU'],
+    'd_main': [128, 256],
+    'd_multiplier': [1.5, 2, 4, 6],
+    'dropout0': [0, 0.1, 0.25],
+    'dropout1': ['dropout0'],
+    'context_size': [16, 32, 64],
+    'encoder_n_blocks': [2],
+    'predictor_n_blocks': [2],
+    'seed': [69],
+    'max_epochs': [2]
 }
