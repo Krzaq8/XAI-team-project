@@ -1,6 +1,7 @@
 from ast import literal_eval
 import gc
 import json
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -16,6 +17,7 @@ import signal
 import pickle
 
 from constants import (
+    CHECKPOINT_PATH,
     FILTERED_MODEL_ACCURACIES_PATH,
     MODEL_ACCURACIES_PATH,
     INITIAL_ACCURACIES_PATH,
@@ -24,6 +26,7 @@ from constants import (
     TIME_LIMIT,
     TIME_LIMIT_CROSS_VALIDATION
 )
+from models import TabRClassifier
 
 
 class TimeoutException(Exception):
@@ -51,6 +54,13 @@ def time_limit(seconds):
     # finally:
     #     # if the action ends in specified time, timer is canceled
     #     timer.cancel()
+
+
+def release_model_vram(model):
+    if model is TabRClassifier:
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
 
 
 def train_test_models(models, hyperparameters, X, y, path, limit):
@@ -93,10 +103,7 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
             with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
-            if model_class.__name__ == 'TabRClassifier':
-                del model
-                gc.collect()
-                torch.cuda.empty_cache()
+            release_model_vram(model)
                 
     return accuracies
 
@@ -136,10 +143,7 @@ def cross_validate_models(models, kwargs_lists, X, y, path, limit):
             with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
-            if model_class.__name__ == 'TabRClassifier':
-                del model
-                gc.collect()
-                torch.cuda.empty_cache()
+            release_model_vram(model)
 
                 
     return accuracies
@@ -166,3 +170,27 @@ def get_rashomon_sets(models, hyperparameters, X, y, initial_cutoff, top, initia
     top_kwargs = get_top_kwargs(models, final_accuracies, top/initial_cutoff)
     return top_kwargs
 
+
+def get_model(model_class, kwargs, X_train, y_train):
+    save_path = f'{CHECKPOINT_PATH}/{model_class.__name__}/{str(kwargs)}.pickle'
+    if os.path.exists(save_path):
+        with open(save_path, 'rb') as file:
+            model = pickle.load(file)
+        return model
+
+    if model_class.__name__ == 'SVMClassifier':
+        model = model_class(probability=True, **kwargs)
+    else:
+        model = model_class(**kwargs)
+    model.fit(X_train, y_train)
+    # if model_class.__name__ == 'TabRClassifier':
+    #     model.network = model.network.to('cpu')
+    #     model.X_train = model.X_train.to('cpu')
+    #     model.y_train = model.y_train.to('cpu')
+    #     model.train_indices = model.train_indices.to('cpu')
+    #     model.device_name = 'cpu'
+    #     torch.cuda.empty_cache()
+    if model_class.__name__ != 'TabRClassifier':
+        with open(save_path, 'wb') as file:
+            pickle.dump(model, file)
+    return model
