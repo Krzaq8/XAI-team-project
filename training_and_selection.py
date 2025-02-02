@@ -1,4 +1,6 @@
+from ast import literal_eval
 import gc
+import json
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -59,15 +61,25 @@ def train_test_models(models, hyperparameters, X, y, path, limit):
             fieldnames = ["model_class", "acc", "kwargs"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
+    else:
+        df = pd.read_csv(path)
+        for m, group in df.groupby('model_class'):
+            accuracies[m] = list(zip(group['acc'].tolist(), group['kwargs'].apply(literal_eval).tolist()))
+            print(m, len(accuracies[m]))
     for model_class in models:
         print(model_class.__name__)
         model_hyperparameters = hyperparameters[model_class.__name__]
-        accuracies[model_class.__name__] = []
+        if model_class.__name__ not in accuracies:
+            accuracies[model_class.__name__] = []
+        i = 0
         for hyperparams in tqdm(product(*model_hyperparameters.values())):
             kwargs = dict(zip(model_hyperparameters.keys(), hyperparams))
             if model_class.__name__ == "SVMClassifier":
                 if kwargs["kernel"] != "poly" and kwargs["degree"] != 3:
                     continue
+            i += 1
+            if i < len(accuracies[model_class.__name__]):
+                continue
             model = model_class(**kwargs)
             try:
                 with time_limit(limit):
@@ -97,9 +109,16 @@ def cross_validate_models(models, kwargs_lists, X, y, path, limit):
             fieldnames = ["model_class", "acc", "kwargs"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
+    else:
+        df = pd.read_csv(path)
+        for m, group in df.groupby('model_class'):
+            accuracies[m] = list(zip(group['acc'].tolist(), group['kwargs'].apply(literal_eval).tolist()))
     for model_class in models:
-        accuracies[model_class.__name__] = []
-        for kwargs in tqdm(kwargs_lists[model_class.__name__]):
+        if model_class.__name__ not in accuracies:
+            accuracies[model_class.__name__] = []
+        for i, kwargs in tqdm(enumerate(kwargs_lists[model_class.__name__])):
+            if i < len(accuracies[model_class.__name__]):
+                continue
             model = model_class(**kwargs)
             try:
                 s=0
@@ -117,6 +136,11 @@ def cross_validate_models(models, kwargs_lists, X, y, path, limit):
             with open(path, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows([[model_class.__name__, acc, kwargs]])
+            if model_class.__name__ == 'TabRClassifier':
+                del model
+                gc.collect()
+                torch.cuda.empty_cache()
+
                 
     return accuracies
 

@@ -8,3 +8,5 @@ tabular-dl-tabr
 .idea
 *.csv
 *.pickle
+*.out
+*.err

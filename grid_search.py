@@ -103,7 +103,7 @@ rashomon_sets_params = get_rashomon_sets(
     top=0.04,
     initial_time_limit=50,
     cross_validation_time_limit=60,
-    initial_path='initial_grid_search.csv',
-    cross_validation_path='cross_validation_results.csv',
+    initial_path='results/initial_grid_search.csv',
+    cross_validation_path='results/cross_validation_results.csv',
 )
 pickle.dump(rashomon_sets_params, open(RASHOMON_SETS_PATH, 'wb'))
