@@ -26,8 +26,10 @@ NUM_SPLITS = 5
 INITIAL_CUTOFF = 0.75
 TOP = 0.5
 
+INITIAL_ACCURACIES_PATH = "initial_accuracies.pickle"
 MODEL_ACCURACIES_PATH = "model_accuracies.csv"
 FILTERED_MODEL_ACCURACIES_PATH = "filtered_model_accuracies.csv"
+RASHOMON_SETS_PATH = "rashomon_sets_params.pickle"
 
 XGBCLASSIFIER_HYPERPARAMETERS = {
     "max_depth": [3, 6],

@@ -8,10 +8,12 @@ from pathlib import Path
 from contextlib import contextmanager
 import threading
 import _thread
+import pickle
 
 from constants import (
     FILTERED_MODEL_ACCURACIES_PATH,
     MODEL_ACCURACIES_PATH,
+    INITIAL_ACCURACIES_PATH,
     NUM_SPLITS,
     SEED,
     TIME_LIMIT,
@@ -112,10 +114,12 @@ def get_top_kwargs(models, accuracies, cutoff):
 
 
 def get_rashomon_sets(models, hyperparameters, X, y, initial_cutoff, top, initial_path=MODEL_ACCURACIES_PATH,
+                      initial_accuracies_complete_path = INITIAL_ACCURACIES_PATH,
                       cross_validation_path=FILTERED_MODEL_ACCURACIES_PATH, initial_time_limit=TIME_LIMIT,
                       cross_validation_time_limit=TIME_LIMIT_CROSS_VALIDATION):
     assert top <= initial_cutoff
     initial_accuracies = train_test_models(models, hyperparameters, X, y, path=initial_path, limit=initial_time_limit)
+    pickle.dump(initial_accuracies, open(initial_accuracies_complete_path, 'wb'))
     filtered_kwargs_lists = get_top_kwargs(models, initial_accuracies, initial_cutoff)
     final_accuracies = cross_validate_models(models, filtered_kwargs_lists, X, y, path=cross_validation_path,
                                              limit=cross_validation_time_limit)
