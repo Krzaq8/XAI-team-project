@@ -19,12 +19,12 @@ FEATURES = ["gender", "age", "age_o", "race", "race_o", "importance_same_race", 
           "like", "guess_prob_liked", "decision"]
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TIME_LIMIT = 20 if torch.cuda.is_available() else 60
-TIME_LIMIT_CROSS_VALIDATION = 25 if torch.cuda.is_available() else 70
+TIME_LIMIT = 50 if torch.cuda.is_available() else 60
+TIME_LIMIT_CROSS_VALIDATION = 60 if torch.cuda.is_available() else 70
 
 NUM_SPLITS = 5
-INITIAL_CUTOFF = 0.75
-TOP = 0.5
+INITIAL_CUTOFF = 0.15
+TOP = 0.04
 
 INITIAL_ACCURACIES_PATH = "initial_accuracies.pickle"
 MODEL_ACCURACIES_PATH = "model_accuracies.csv"
