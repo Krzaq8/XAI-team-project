@@ -17,6 +17,9 @@ FEATURES = ["gender", "age", "age_o", "race", "race_o", "importance_same_race", 
           "music", "shopping", "yoga",
           "interests_correlate", "expected_happy_with_sd_people", "expected_num_matches", "expected_num_interested_in_me",
           "like", "guess_prob_liked", "decision"]
+SENSITIVE_FEATURES = ["gender", "age", 'race_Asian/Pacific Islander/Asian-American',
+       'race_Black/African American', 'race_European/Caucasian-American',
+       'race_Latino/Hispanic American', 'race_Other']
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 TIME_LIMIT = 50 if torch.cuda.is_available() else 60
@@ -30,6 +33,8 @@ INITIAL_ACCURACIES_PATH = "initial_accuracies.pickle"
 MODEL_ACCURACIES_PATH = "model_accuracies.csv"
 FILTERED_MODEL_ACCURACIES_PATH = "filtered_model_accuracies.csv"
 RASHOMON_SETS_PATH = "rashomon_sets_params.pickle"
+CHECKPOINT_PATH = 'checkpoints'
+EXPLANATIONS_PATH = 'results/explanations.pickle'
 
 XGBCLASSIFIER_HYPERPARAMETERS = {
     'n_estimators': [100, 200, 400, 600],
