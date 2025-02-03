@@ -1,3 +1,4 @@
+from functools import partial
 import gc
 import os
 import pickle
@@ -14,6 +15,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 import lime
 import lime.lime_tabular
 import shap
+from PyALE import ale
 from tqdm import tqdm
 
 from constants import EXPLANATIONS_PATH, SEED, SENSITIVE_FEATURES
@@ -62,16 +64,19 @@ def performance_metrics(model, X_test, y_test, plot=False):
     return metrics
 
 
-def permutation_feature_importance(model, X_test, y_test, plot=False):
+def permutation_feature_importance(model, X_test, y_test, plot=False, gender=None):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         # for model_class in MODEL:
         #     for model in rashomon_sets[model_class.__name__]:
+        if gender is not None:
+            y_test = y_test[X_test['gender'] == gender]
+            X_test = X_test[X_test['gender'] == gender]
         importances = permutation_importance(
             model,
             X_test,
             y_test,
-            n_repeats=1,
+            n_repeats=2,
             random_state=SEED,
             scoring="accuracy"
         )
@@ -86,14 +91,14 @@ def permutation_feature_importance(model, X_test, y_test, plot=False):
     return importances
     
 
-def lime_explanation(model, X_test, y_test, plot=False):
+def lime_explanation(model, X_test, y_test, plot=False, sample_no=SEED):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         categorical_features = [0, 3, 4, -1]
         lime_explainer = lime.lime_tabular.LimeTabularExplainer(X_test.to_numpy(), categorical_features=categorical_features, feature_names=list(X_test.columns), class_names=['negative', 'positive'])
         # for model_class in MODELS:
         #     for model in rashomon_sets[model_class.__name__]:
-        explanation = lime_explainer.explain_instance(X_test.iloc[SEED, :], model.predict_proba, num_features=5)
+        explanation = lime_explainer.explain_instance(X_test.iloc[sample_no, :], model.predict_proba, num_features=5)
         if plot:
             fig = explanation.as_pyplot_figure()
             plt.plot()
@@ -122,6 +127,26 @@ def shap_explanation(model, X_test, y_test, plot=False):
     return explaination
 
 
+def getALE(model, X_test, y_test, plot=False):
+    ## 1D - continuous - with 95% CI
+    features = ['funny_partner', 'expected_num_matches', 'guess_prob_liked', 'attractive_partner', 'like']
+    results = {}
+    for feature in features:
+        ale_eff = ale(
+            X=X_test, model=model, feature=[feature], grid_size=50, include_CI=True, C=0.95, plot=plot
+        )
+        results[feature] = ale_eff
+    return results
+
+def getALE_2D(model, X_test, y_test, plot=False, gender=0, features=['intelligence', 'intelligence_partner']):
+    y_test = y_test[X_test['gender'] == gender]
+    X_test = X_test[X_test['gender'] == gender]
+    ale_eff = ale(
+        X=X_test, model=model, feature=features, grid_size=50, include_CI=True, C=0.95, plot=plot
+    )
+    return ale_eff
+
+
 EXPLANATION_FUNCS = {
     'lime': lime_explanation,
     'shap': shap_explanation,
@@ -129,6 +154,20 @@ EXPLANATION_FUNCS = {
     'metrics': performance_metrics,
 }
 
+EXPLANATION_FUNCS2 = {
+    'lime420': partial(lime_explanation, sample_no=420),
+    'lime69': partial(lime_explanation, sample_no=69),
+    'ale': getALE,
+    'vip_male': partial(permutation_feature_importance, gender=1),
+    'vip_female': partial(permutation_feature_importance, gender=0),
+}
+
+EXPLANATION_FUNCS3 = {
+    'ale0int': partial(getALE_2D, gender=0, features=['intelligence', 'intelligence_partner']),
+    'ale1int': partial(getALE_2D, gender=1, features=['intelligence', 'intelligence_partner']),
+    'ale0amb': partial(getALE_2D, gender=0, features=['ambition', 'ambition_partner']),
+    'ale1amb': partial(getALE_2D, gender=1, features=['ambition', 'ambition_partner']),
+}
 
 def run_all_explanations(
         models,
@@ -138,25 +177,29 @@ def run_all_explanations(
         X_test,
         y_test,
         explanation_funcs: Dict[str, Callable] = EXPLANATION_FUNCS,
+        path=EXPLANATIONS_PATH,
         plot=False
     ):
 
     all_explanations = []
     for model_class in models:
-        results_path = f'{EXPLANATIONS_PATH}/{model_class.__name__}.pickle'
+        results_path = f'{path}/{model_class.__name__}.pickle'
         skip_iters = 0
+        ex_name = next(iter(explanation_funcs.keys()))
         if os.path.exists(results_path):
             with open(results_path, 'rb') as file:
                 explanations = pickle.load(file)
-            skip_iters = len(explanations[next(iter(explanation_funcs.keys()))])
+            skip_iters = len(explanations[ex_name])
             print(f'Skipping {skip_iters} iterations of {model_class.__name__}')
         else:
             explanations = {name: dict() for name in explanation_funcs.keys()}
 
-        for kwargs in tqdm(rashomon_sets_params[model_class.__name__][skip_iters:]):
-            model = get_model(model_class, kwargs, X_train, y_train)
+        for kwargs in tqdm(rashomon_sets_params[model_class.__name__]):
             model_idx = model_class.__name__, str(kwargs)
-            for name, explain_func in explanation_funcs.items():
+            if model_idx in explanations.get(ex_name, {}):
+                continue
+            model = get_model(model_class, kwargs, X_train, y_train)
+            for name, explain_func in tqdm(explanation_funcs.items()):
                 expl = explain_func(model, X_test, y_test, plot=plot)
                 explanations[name][model_idx] = expl
                 
@@ -164,7 +207,7 @@ def run_all_explanations(
                 del model
                 gc.collect()
                 torch.cuda.empty_cache()
-            with open(f'{EXPLANATIONS_PATH}/{model_class.__name__}.pickle', 'wb') as file:
+            with open(f'{path}/{model_class.__name__}.pickle', 'wb') as file:
                 pickle.dump(explanations, file)
         all_explanations.append(explanations)
 
